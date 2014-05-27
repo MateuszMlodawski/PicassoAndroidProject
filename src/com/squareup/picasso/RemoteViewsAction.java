@@ -18,17 +18,20 @@ package com.squareup.picasso;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.RemoteViews;
 
-abstract class RemoteViewsAction extends Action<Void> {
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.squareup.picasso.Utils.getService;
+
+abstract class RemoteViewsAction extends Action<RemoteViewsAction.RemoteViewsTarget> {
   final RemoteViews remoteViews;
   final int viewId;
 
   RemoteViewsAction(Picasso picasso, Request data, RemoteViews remoteViews, int viewId,
       int errorResId, boolean skipCache, String key) {
-    super(picasso, null, data, skipCache, false, errorResId, null, key);
+    super(picasso, new RemoteViewsTarget(remoteViews, viewId), data, skipCache, false, errorResId,
+        null, key);
     this.remoteViews = remoteViews;
     this.viewId = viewId;
   }
@@ -50,6 +53,28 @@ abstract class RemoteViewsAction extends Action<Void> {
   }
 
   abstract void update();
+
+  static class RemoteViewsTarget {
+    final RemoteViews remoteViews;
+    final int viewId;
+
+    RemoteViewsTarget(RemoteViews remoteViews, int viewId) {
+      this.remoteViews = remoteViews;
+      this.viewId = viewId;
+    }
+
+    @Override public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      RemoteViewsTarget remoteViewsTarget = (RemoteViewsTarget) o;
+      return viewId == remoteViewsTarget.viewId && remoteViews.equals(
+          remoteViewsTarget.remoteViews);
+    }
+
+    @Override public int hashCode() {
+      return 31 * remoteViews.hashCode() + viewId;
+    }
+  }
 
   static class AppWidgetAction extends RemoteViewsAction {
     private final int[] appWidgetIds;
@@ -79,8 +104,7 @@ abstract class RemoteViewsAction extends Action<Void> {
     }
 
     @Override void update() {
-      NotificationManager manager =
-          (NotificationManager) picasso.context.getSystemService(Context.NOTIFICATION_SERVICE);
+      NotificationManager manager = getService(picasso.context, NOTIFICATION_SERVICE);
       manager.notify(notificationId, notification);
     }
   }
