@@ -46,7 +46,7 @@ class ImageViewAction extends Action<ImageView> {
     PicassoDrawable.setBitmap(target, context, result, from, noFade, indicatorsEnabled);
 
     if (callback != null) {
-      callback.onSuccess();
+      callback.onSuccess(from);
     }
   }
 

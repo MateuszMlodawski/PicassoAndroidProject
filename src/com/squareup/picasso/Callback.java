@@ -15,14 +15,16 @@
  */
 package com.squareup.picasso;
 
+import com.squareup.picasso.Picasso.LoadedFrom;
+
 public interface Callback {
-  void onSuccess();
+  void onSuccess(LoadedFrom arg0);
 
   void onError();
 
   public static class EmptyCallback implements Callback {
-
-    @Override public void onSuccess() {
+    
+    @Override public void onSuccess(LoadedFrom arg0) {
     }
 
     @Override public void onError() {
