@@ -22,6 +22,8 @@ import android.graphics.Matrix;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -406,8 +408,8 @@ abstract class BitmapHunter implements Runnable {
     Matrix matrix = new Matrix();
 
     if (data.needsMatrixTransform()) {
-      int targetWidth = data.targetWidth;
-      int targetHeight = data.targetHeight;
+      int targetWidth = data.targetWidth;// < inWidth ? data.targetWidth : inWidth;
+      int targetHeight = data.targetHeight;// < inHeight ? data.targetHeight : inHeight;
 
       float targetRotation = data.rotationDegrees;
       if (targetRotation != 0) {
@@ -435,8 +437,8 @@ abstract class BitmapHunter implements Runnable {
         }
         matrix.preScale(scale, scale);
       } else if (data.centerInside) {
-        float widthRatio = targetWidth / (float) inWidth;
-        float heightRatio = targetHeight / (float) inHeight;
+        float widthRatio = (targetWidth < inWidth ? targetWidth : inWidth) / (float) inWidth;
+        float heightRatio = (targetHeight < inHeight ? targetHeight : inHeight) / (float) inHeight;
         float scale = widthRatio < heightRatio ? widthRatio : heightRatio;
         matrix.preScale(scale, scale);
       } else if (targetWidth != 0 && targetHeight != 0 //
@@ -452,9 +454,10 @@ abstract class BitmapHunter implements Runnable {
     if (exifRotation != 0) {
       matrix.preRotate(exifRotation);
     }
-
+    
     Bitmap newResult =
         Bitmap.createBitmap(result, drawX, drawY, drawWidth, drawHeight, matrix, true);
+    
     if (newResult != result) {
       result.recycle();
       result = newResult;
