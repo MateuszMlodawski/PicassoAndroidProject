@@ -428,8 +428,6 @@ abstract class BitmapHunter implements Runnable {
 	static Bitmap transformResult(Request data, Bitmap result, int exifRotation) {
 		boolean swapDimens = exifRotation == 90 || exifRotation == 270;
 
-		Log.v("BITMAP_HUNTER", "swapDimens: " + swapDimens);
-
 		int inWidth = swapDimens ? result.getHeight() : result.getWidth();
 		int inHeight = swapDimens ? result.getWidth() : result.getHeight();
 
@@ -448,7 +446,6 @@ abstract class BitmapHunter implements Runnable {
 													// inHeight;
 
 			float targetRotation = data.rotationDegrees;
-			Log.v("BITMAP_HUNTER", "targetRotation: " + targetRotation);
 			if (targetRotation != 0) {
 				if (data.hasRotationPivot) {
 					matrix.setRotate(targetRotation, data.rotationPivotX,
